@@ -1,2 +1,2 @@
 //  adds a new attribute to a document in the collection school
-db.school.delete({"name" : "Holberton school"})
+db.school.remove({"name" : "Holberton school"}, false)
