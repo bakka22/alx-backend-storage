@@ -2,7 +2,7 @@
 """ redis basics """
 import redis
 import uuid
-from typing import Union
+from typing import Union, Callable, Optional
 
 
 class Cache():
@@ -18,7 +18,8 @@ class Cache():
         self._redis.set(uid, data)
         return uid
 
-    def get(self, key, fn):
+    def get(self, key: str, fn: Optional[Callable] = None) ->
+            Union[str, bytes, int, float]:
         """ get the value from redis based on key
         and convert it to desired format """
         value = self._redis.get(key)
@@ -26,12 +27,12 @@ class Cache():
             value = fn(value)
         return value
 
-    def get_str(self, key):
+    def get_str(self, key: str) -> str:
         """ get the value in string format
         from redis based on key"""
-        self.get(key, lambda d: d.decode("utf-8"))
+        return self.get(key, lambda d: d.decode("utf-8"))
 
-    def get_int(self, key):
+    def get_int(self, key: str) -> str:
         """ get the value in int format
         from redis based on key"""
-        self.get(key, int)
+        return self.get(key, int)
