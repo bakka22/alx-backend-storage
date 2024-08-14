@@ -18,7 +18,7 @@ class Cache():
         self._redis.set(uid, data)
         return uid
 
-    def get(self, key: str, fn: Optional[Callable] = None) ->
+    def get(self, key: str, fn: Callable = None) ->
             Union[str, bytes, int, float]:
         """ get the value from redis based on key
         and convert it to desired format """
