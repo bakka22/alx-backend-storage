@@ -20,5 +20,6 @@ if __name__ == "__main__":
             req_dic[doc['_id']] = doc['sum']
     for req in reqs:
         print(f"\tmethod {req}: {req_dic[req]}")
-    st_checks = collection.count_documents({"method": 'GET', "path": "/status"})
+    st_checks = collection.count_documents({"method": 'GET',
+                                            "path": "/status"})
     print(f"{st_checks} status check")
