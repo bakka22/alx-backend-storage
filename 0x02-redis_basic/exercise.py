@@ -35,4 +35,4 @@ class Cache():
     def get_int(self, key: str) -> str:
         """ get the value in int format
         from redis based on key"""
-        return self.get(key, int)
+        return self.get(key, lambda x: int(x))
