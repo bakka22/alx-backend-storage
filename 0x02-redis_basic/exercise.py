@@ -28,6 +28,21 @@ def count_calls(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(fn: Callable):
+    """ print the call history of a function """
+    r = redis.Redis()
+    name = fn.__qualname__
+
+    def de(x):
+        return x.decode('utf-8')
+    inputs = r.lrange(f"{name}:inputs", 0, -1)
+    outputs = r.lrange(f"{name}:outputs", 0, -1)
+    zipped = list(zip(inputs, outputs))
+    print(f"{name} was called {len(zipped)} times:")
+    for tup in zipped:
+        print(f"{name}(*{de(tup[0])}) -> {de(tup[1])}")
+
+
 class Cache():
     """ cashe class """
     def __init__(self):
