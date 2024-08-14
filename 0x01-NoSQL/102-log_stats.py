@@ -1,42 +1,29 @@
 #!/usr/bin/env python3
-"""
-Log stats
-"""
+""" nginx logs """
 from pymongo import MongoClient
 
-
-def log_stats():
-    """ log_stats.
-    """
-    client = MongoClient('mongodb://127.0.0.1:27017')
-    logs_collection = client.logs.nginx
-    total = logs_collection.count_documents({})
-    get = logs_collection.count_documents({"method": "GET"})
-    post = logs_collection.count_documents({"method": "POST"})
-    put = logs_collection.count_documents({"method": "PUT"})
-    patch = logs_collection.count_documents({"method": "PATCH"})
-    delete = logs_collection.count_documents({"method": "DELETE"})
-    path = logs_collection.count_documents(
-        {"method": "GET", "path": "/status"})
-    print(f"{total} logs")
-    print("Methods:")
-    print(f"\tmethod GET: {get}")
-    print(f"\tmethod POST: {post}")
-    print(f"\tmethod PUT: {put}")
-    print(f"\tmethod PATCH: {patch}")
-    print(f"\tmethod DELETE: {delete}")
-    print(f"{path} status check")
-    print("IPs:")
-    sorted_ips = logs_collection.aggregate(
-        [{"$group": {"_id": "$ip", "count": {"$sum": 1}}},
-         {"$sort": {"count": -1}}])
-    i = 0
-    for s in sorted_ips:
-        if i == 10:
-            break
-        print(f"\t{s.get('_id')}: {s.get('count')}")
-        i += 1
-
-
 if __name__ == "__main__":
-    log_stats()
+    reqs = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+    req_dic = {'GET': 0, 'POST': 0, 'PUT': 0, 'PATCH': 0, 'DELETE': 0}
+    client = MongoClient()
+    db = client.logs
+    collection = db.nginx
+    print(f"{collection.count_documents({})} logs")
+    pipeline = [
+        {'$match': {'method': {'$in': reqs}}},
+        {'$group': {'_id': '$method', 'sum': {'$sum': 1}}}
+    ]
+    print("Methods:")
+    result = collection.aggregate(pipeline)
+    for doc in result:
+        if doc['_id'] in reqs:
+            req_dic[doc['_id']] = doc['sum']
+    for req in reqs:
+        print(f"\tmethod {req}: {req_dic[req]}")
+    st_checks = collection.count_documents({"method": 'GET',
+                                            "path": "/status"})
+    print(f"{st_checks} status check")
+    print("IPs:")
+    ips = collection.aggregate([{'$group': {'_id': '$ip', 'count': {'$sum': 1}}}, {'$sort': {'count': -1}}, {'$limit': 10}])
+    for doc in ips:
+        print(f"\t{doc['_id']}: {doc['count']}")
