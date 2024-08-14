@@ -29,7 +29,7 @@ class Cache():
     def get_str(self, key):
         """ get the value in string format
         from redis based on key"""
-        self.get(key, str)
+        self.get(key, lambda d: d.decode("utf-8"))
 
     def get_int(self, key):
         """ get the value in int format
