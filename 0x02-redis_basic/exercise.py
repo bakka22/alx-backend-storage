@@ -21,7 +21,10 @@ class Cache():
     def get(self, key, fn):
         """ get the value from redis based on key
         and convert it to desired format """
-        value = self._redis.get(key)
+        try:
+            value = self._redis.get(key)
+        except NameError:
+            value = None
         if fn and value:
             value = fn(value)
         return value
