@@ -17,12 +17,11 @@ class Cache():
         uid = str(uuid.uuid4())
         self._redis.set(uid, data)
         return uid
-    def get(self, key: str, fn: Optional[Callable] = None) ->
-            Union[str, bytes, int, float]:
+    def get(self, key: str, fn: Optional[Callable] = None) -> Union[str, bytes, int, float]:
         """ get the value from redis based on key
         and convert it to desired format """
-        value = self._redis.get(key)
-        if fn:
+        value = redis.Redis().get(key)
+        if fn and value:
             value = fn(value)
         return value
 
