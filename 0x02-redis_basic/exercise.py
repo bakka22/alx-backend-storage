@@ -2,15 +2,17 @@
 """ redis basics """
 import redis
 import uuid
-from typing import Union, Callable, Optional
+from typing import Union, Callable, Optional, Any
 from functools import wraps
 
 
-def count_calls(f):
-    @wraps(f)
-    def wrapper(*args, **kwargs):
-        args[0]._redis.incr(f.__qualname__, 1)
-        return f(*args, **kwargs)
+def count_calls(method: Callable) -> Callable:
+    """ Decorator for Cache class methods to track call count """
+    @wraps(method)
+    def wrapper(self: Any, *args, **kwargs):
+        """ wraps called method """
+        self._redis.incr(method.__qualname__, 1)
+        return method(self, *args, **kwargs)
     return wrapper
 
 
