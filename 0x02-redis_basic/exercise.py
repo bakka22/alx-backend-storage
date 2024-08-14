@@ -6,7 +6,7 @@ from typing import Union, Callable, Optional
 from functools import wraps
 
 
-def my_decorator(f):
+def count_calls(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
         args[0]._redis.incr(f.__qualname__, 1)
@@ -21,7 +21,7 @@ class Cache():
         self._redis = redis.Redis()
         self._redis.flushdb()
 
-    @my_decorator
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """ store data using a random key """
         uid = str(uuid.uuid4())
